@@ -1725,25 +1725,25 @@ function CategoryTreemapContent(props) {
         <>
           <text x={x + width / 2} y={y + height / 2 - 4}
             textAnchor="middle" fill="#fff"
-            style={{ fontSize: width < 100 ? 11 : 12, fontWeight: 700, pointerEvents: 'none' }}>
+            style={{ fontSize: width < 100 ? 11 : 12, fontWeight: 500, pointerEvents: 'none' }}>
             {displayName}
           </text>
           <text x={x + width / 2} y={y + height / 2 + 12}
-            textAnchor="middle" fill="rgba(255,255,255,0.92)"
-            style={{ fontSize: width < 100 ? 10 : 11, fontWeight: 600, pointerEvents: 'none', fontVariantNumeric: 'tabular-nums' }}>
+            textAnchor="middle" fill="rgba(255,255,255,0.9)"
+            style={{ fontSize: width < 100 ? 10 : 11, fontWeight: 400, pointerEvents: 'none', fontVariantNumeric: 'tabular-nums' }}>
             {pctText}
           </text>
         </>
       ) : canShowLabel ? (
         <text x={x + width / 2} y={y + height / 2 + 3}
           textAnchor="middle" fill="#fff"
-          style={{ fontSize: 11, fontWeight: 700, pointerEvents: 'none' }}>
+          style={{ fontSize: 11, fontWeight: 500, pointerEvents: 'none' }}>
           {displayName} · {pctText}
         </text>
       ) : canShowPct ? (
         <text x={x + width / 2} y={y + height / 2 + 3}
           textAnchor="middle" fill="#fff"
-          style={{ fontSize: 10, fontWeight: 700, pointerEvents: 'none', fontVariantNumeric: 'tabular-nums' }}>
+          style={{ fontSize: 10, fontWeight: 500, pointerEvents: 'none', fontVariantNumeric: 'tabular-nums' }}>
           {pctText}
         </text>
       ) : null}
@@ -2034,9 +2034,11 @@ function ChartCard({ title, unit, children, aiComment, actions, height=260, empt
   return (
     <Card padding="p-0" className="flex flex-col">
       <div className="flex items-center justify-between pt-7 pb-4" style={{paddingLeft:'28px', paddingRight:'28px'}}>
-        <div className="flex items-baseline gap-2">
-          <span className="heading-h4">{title}</span>
-          {unit && <span className="text-xs font-medium" style={{color:'var(--text-3)'}}>· {unit}</span>}
+        <div className="flex items-baseline gap-2 min-w-0">
+          {React.isValidElement(title)
+            ? <span className="heading-h4 min-w-0">{title}</span>
+            : <span className="heading-h4">{title}</span>}
+          {unit && <span className="text-xs font-medium flex-shrink-0" style={{color:'var(--text-3)'}}>· {unit}</span>}
         </div>
         <div className="flex items-center gap-1">
           {!empty && aiComment && (
@@ -2115,7 +2117,9 @@ function ListCard({
       >
         <div className="flex items-center gap-2 min-w-0">
           {icon}
-          <span className="heading-h4 truncate">{title}</span>
+          {React.isValidElement(title)
+            ? <span className="heading-h4 min-w-0">{title}</span>
+            : <span className="heading-h4 truncate">{title}</span>}
           {unit && <span className="text-xs font-medium flex-shrink-0" style={{ color: 'var(--text-3)' }}>· {unit}</span>}
           {badge}
         </div>
@@ -6325,42 +6329,50 @@ function MarketingTab() {
         )}
       </ListCard>
 
+      {/* 섹션 구분선: 마케팅 현황 ↔ AI 마케팅 엔진 */}
+      <div className="border-t" style={{borderColor:'rgba(15, 23, 42, 0.12)', marginTop:'56px', marginBottom:'56px'}} />
+
       {/* ===== 섹션 2: AI 마케팅 엔진 ===== */}
       <SectionHeader title="AI 마케팅 엔진" subtitle="ML Campaign Optimizer" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Uplift Top 고객 */}
-        <ListCard title="Uplift Top 타겟"
-          unit={`${upliftBackend.data?.algorithm || 'Two-Model Uplift'} · 평균 uplift ${upliftBackend.data?.mean_uplift ? (upliftBackend.data.mean_uplift*100).toFixed(2)+'%' : '—'}`}
+        <ListCard
+          title={
+            <span style={{display:'inline-flex', flexDirection:'column', lineHeight:1.25}}>
+              <span>Uplift Top 타겟</span>
+              <span className="text-[11px] font-medium" style={{color:'var(--text-3)', marginTop:'2px'}}>
+                {`${upliftBackend.data?.algorithm || 'Two-Model Uplift'} · 평균 ${upliftBackend.data?.mean_uplift ? (upliftBackend.data.mean_uplift*100).toFixed(2)+'%' : '—'}`}
+              </span>
+            </span>
+          }
           headerRight={<BackendBadge loading={upliftBackend.loading} error={upliftBackend.error} algorithm="Uplift" />}
           bodyPadding="flush">
           {upliftBackend.loading ? <EmptyState height={220} /> : (
-            <table className="w-full text-[11px]">
+            <table className="w-full text-[11px] table-fixed">
               <thead className="bg-gray-50 text-gray-600">
                 <tr>
-                  <th className="text-left px-2 py-1.5 font-medium">#</th>
-                  <th className="text-left px-2 py-1.5 font-medium">연령</th>
-                  <th className="text-left px-2 py-1.5 font-medium">세그</th>
-                  <th className="text-right px-2 py-1.5 font-medium">Recency</th>
-                  <th className="text-right px-2 py-1.5 font-medium">Monetary</th>
-                  <th className="text-right px-2 py-1.5 font-medium">Uplift</th>
+                  <th className="text-left px-1.5 py-1.5 font-medium" style={{width:'14%'}}>연령</th>
+                  <th className="text-left px-1.5 py-1.5 font-medium" style={{width:'14%'}}>세그</th>
+                  <th className="text-right px-1.5 py-1.5 font-medium" style={{width:'20%'}}>Rec.</th>
+                  <th className="text-right px-1.5 py-1.5 font-medium" style={{width:'30%'}}>Monetary</th>
+                  <th className="text-right px-1.5 py-1.5 font-medium" style={{width:'22%'}}>Uplift</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {(upliftBackend.data?.items || []).slice(0, 10).map((u, i) => (
                   <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-2 py-1.5 font-mono text-gray-400">{u.customer_idx}</td>
-                    <td className="px-2 py-1.5">{u.age}</td>
-                    <td className="px-2 py-1.5 text-gray-600">{u.segment_id}</td>
-                    <td className="px-2 py-1.5 text-right tnum">{u.recency}d</td>
-                    <td className="px-2 py-1.5 text-right tnum">₩{fmtNum(Math.round(u.monetary))}</td>
-                    <td className="px-2 py-1.5 text-right">
-                      <span className="font-bold text-emerald-600 tnum">+{(u.uplift*100).toFixed(2)}%</span>
+                    <td className="px-1.5 py-1.5">{u.age}</td>
+                    <td className="px-1.5 py-1.5 text-gray-600 truncate">{u.segment_id}</td>
+                    <td className="px-1.5 py-1.5 text-right tnum">{u.recency}d</td>
+                    <td className="px-1.5 py-1.5 text-right tnum">₩{fmtNum(Math.round(u.monetary))}</td>
+                    <td className="px-1.5 py-1.5 text-right">
+                      <span className="font-bold text-emerald-600 tnum">+{(u.uplift*100).toFixed(1)}%</span>
                     </td>
                   </tr>
                 ))}
                 {!(upliftBackend.data?.items || []).length && (
-                  <tr><td colSpan="6" className="text-center text-gray-400 py-6 text-[11px]">백엔드 미연결 — /api/marketing/uplift/top</td></tr>
+                  <tr><td colSpan="5" className="text-center text-gray-400 py-6 text-[11px]">백엔드 미연결 — /api/marketing/uplift/top</td></tr>
                 )}
               </tbody>
             </table>
@@ -6368,7 +6380,15 @@ function MarketingTab() {
         </ListCard>
 
         {/* 어트리뷰션 */}
-        <ChartCard title="Markov 어트리뷰션" unit={`${attribBackend.data?.algorithm || 'Markov Chain'} · Removal Effect`}
+        <ChartCard
+          title={
+            <span style={{display:'inline-flex', flexDirection:'column', lineHeight:1.25}}>
+              <span>Markov 어트리뷰션</span>
+              <span className="text-[11px] font-medium" style={{color:'var(--text-3)', marginTop:'2px'}}>
+                {`${attribBackend.data?.algorithm || 'Markov Chain'} · Removal Effect`}
+              </span>
+            </span>
+          }
           headerRight={<BackendBadge loading={attribBackend.loading} error={attribBackend.error} algorithm="Markov" />}
           height={280}>
           {attribBackend.loading ? <EmptyState height={240} /> : (
@@ -6386,8 +6406,15 @@ function MarketingTab() {
         </ChartCard>
 
         {/* Thompson Sampling 액션 */}
-        <ListCard title="AI 추천 액션"
-          unit={`Thompson Sampling · 최적 채널: ${actionsBackend.data?.best_channel || '—'}`}
+        <ListCard
+          title={
+            <span style={{display:'inline-flex', flexDirection:'column', lineHeight:1.25}}>
+              <span>AI 추천 액션</span>
+              <span className="text-[11px] font-medium" style={{color:'var(--text-3)', marginTop:'2px'}}>
+                {`Thompson Sampling · ${actionsBackend.data?.best_channel || '—'}`}
+              </span>
+            </span>
+          }
           headerRight={<BackendBadge loading={actionsBackend.loading} error={actionsBackend.error} algorithm="Thompson" />}>
           {actionsBackend.loading ? <EmptyState height={220} /> : (
             <div className="space-y-1.5">
@@ -6395,10 +6422,10 @@ function MarketingTab() {
                 <div key={i} className="border border-gray-200 rounded-lg p-2 flex items-start gap-2">
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 flex-shrink-0">#{a.rank}</span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[12px] font-semibold text-gray-900 truncate">{a.title}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">
-                      <span className="mr-2">채널 · {a.channel}</span>
-                      {a.uplift !== undefined && <span className="text-emerald-600 font-semibold">uplift +{(a.uplift*100).toFixed(1)}%</span>}
+                    <div className="text-[12px] font-semibold text-gray-900 leading-tight break-keep">{a.title}</div>
+                    <div className="text-[10px] text-gray-500 mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
+                      <span>채널 · {a.channel}</span>
+                      {a.uplift !== undefined && <span className="text-emerald-600 font-semibold">+{(a.uplift*100).toFixed(1)}%</span>}
                     </div>
                   </div>
                   <span className="text-[10px] text-rose-600 font-semibold flex-shrink-0">{a.priority}</span>
